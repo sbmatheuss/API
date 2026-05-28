@@ -1,21 +1,33 @@
 // cria servidor
 import express from 'express'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 const app = express()
 
 app.use(express.json()) // habilita leitura do body em JSON
 
-const users = [] // banco de dados
 
 // cria usuário
-app.post('/usuarios', (req, resp) => {
-    users.push(req.body)
+app.post('/usuarios', async (req, resp) => {
     
-    resp.status(201).json(users)
+    await prisma.user.create({
+        data: {
+            email: req.body.email,
+            name: req.body.name,
+            age: req.body.age
+        }
+    })
+    
+    resp.status(201).json(req.body)
 })
 
 // lista usuário
-app.get('/usuarios', (req, resp) => {
+app.get('/usuarios', async(req, resp) => {
+
+    const users = await prisma.user.findMany()
+
     resp.status(200).json(users)
     
 })
